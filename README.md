@@ -25,11 +25,8 @@ Make a copy of the config.yaml file and edit the variables to fit your needs. Th
 
 ## Usage/Examples
 
-```javascript
-import Component from 'my-project'
+```
+run stuff
 
-function App() {
-  return <Component />
-}
 ```
 
