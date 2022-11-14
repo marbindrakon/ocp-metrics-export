@@ -1,5 +1,5 @@
 
-# Project Title
+# OpenShift Metrics Export
 
 Automated method of gathering useful metrics from an OpenShift Cluster related to performance and scaling. If you want to grow a large cluster, these are a good starting point to evaluate.
 
