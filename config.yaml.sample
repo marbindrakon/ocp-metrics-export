@@ -1,0 +1,68 @@
+# Time series settings
+# Not yet implemented
+start: 2022-09-01T00:00:00Z
+end: 2022-10-31T23:59:59Z
+default_step: 1h
+
+# General settings
+output_dir: /home/aaustin/dev/metrics-export/output
+capture_snapshot: true
+capture_time_series: false
+query_timeout: 15m
+clusters:
+  - name: ocp5-import
+    prom_base_url: https://prometheus-k8s-openshift-monitoring.apps.ocp5.lab.signal9.gg
+    token: <Insert token here>
+    node_merge: {}
+  - name: local-cluster
+    prom_base_url: https://prometheus-k8s-openshift-monitoring.apps.ocp3.lab.signal9.gg
+    token: sha256~<Insert token here>
+    node_merge:
+      172.18.16.11: ocp3-master-0.lab.signal9.gg
+      172.18.16.12: ocp3-master-1.lab.signal9.gg
+      172.18.16.13: ocp3-master-2.lab.signal9.gg
+      172.18.16.14: ocp3-worker-0.lab.signal9.gg
+      172.18.16.15: ocp3-worker-1.lab.signal9.gg
+      172.18.16.16: ocp3-worker-2.lab.signal9.gg
+multicluster:
+  base_url: https://observability-thanos.apps.ocp3.lab.signal9.gg
+  token: null
+cluster_queries:
+  - promql: sum(sum:apiserver_request_total:1h{cluster="{{cluster}}"}) by (cluster)
+    name: api_request_rate_1h
+    source: multicluster
+  - promql: sum(sum:apiserver_request_total:5m{cluster="{{cluster}}"}) by (cluster)
+    name: api_request_rate_5m
+    source: multicluster
+  - promql: sum(sum:apiserver_request_total:5m{cluster="{{cluster}}",code="201"}) by (cluster)
+    name: api_201_request_rate_5m
+    source: multicluster
+  - promql: sum(irate(container_network_transmit_packets_total{cluster="{{cluster}}",interface="tun0",namespace="openshift-monitoring",pod_name=~"node.*"}[1h]) + irate(container_network_receive_packets_total{cluster="{{cluster}}",interface="tun0",namespace="openshift-monitoring",pod_name=~"node.*"}[1h])) by (cluster)
+    name: tun0_packet_rate_1h
+    source: multicluster
+  - promql: sum(irate(container_network_transmit_packets_total{cluster="{{cluster}}",interface="vxlan_sys_4789",namespace="openshift-monitoring",pod_name=~"node.*"}[1h]) + irate(container_network_receive_packets_total{cluster="{{cluster}}",interface="vxlan_sys_4789",namespace="openshift-monitoring",pod_name=~"node.*"}[1h])) by (cluster)
+    name: vtep_packet_rate_1h
+    source: multicluster
+  - promql: sum(instance:node_network_receive_bytes_excluding_lo:rate1m{cluster="{{cluster}}"} + instance:node_network_transmit_bytes_excluding_lo:rate1m{cluster="{{cluster}}"}) by (cluster)
+    name: network_bandwidth_1m_cluster
+    source: multicluster
+  - promql: avg(apiserver_response_sizes_sum{resource="secrets",verb="GET"} / apiserver_response_sizes_count{resource="secrets",verb="GET"})
+    name: average_secret_resp_size
+    snapshot_only: true
+    source: cluster
+  - promql: avg(apiserver_response_sizes_sum{resource="configmaps",verb="GET"} / apiserver_response_sizes_count{resource="configmaps",verb="GET"})
+    name: average_configmap_resp_size
+    snapshot_only: true
+    source: cluster
+node_queries:
+  - promql: instance:node_num_cpu:sum{cluster="{{cluster}}"}
+    name: node_cpu_count
+    snapshot_only: true
+    source: multicluster
+  - promql: machine_memory_bytes{cluster="{{cluster}}"}
+    name: node_memory_bytes
+    snapshot_only: true
+    source: multicluster
+  - promql: instance:node_network_receive_bytes_excluding_lo:rate1m{cluster="{{cluster}}"} + instance:node_network_transmit_bytes_excluding_lo:rate1m{cluster="{{cluster}}"}
+    name: network_bandwidth_1m_node
+    source: multicluster
