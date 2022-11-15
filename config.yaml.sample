@@ -1,3 +1,7 @@
+# At a minimum you need to edit the following to fit your environment, output_dir, cluster name(s), prom_base_url(s), node_merges, and the multicluster base URL.  
+
+
+
 # Time series settings
 # Not yet implemented
 start: 2022-09-01T00:00:00Z
@@ -5,27 +9,27 @@ end: 2022-10-31T23:59:59Z
 default_step: 1h
 
 # General settings
-output_dir: /home/aaustin/dev/metrics-export/output
+output_dir: /home/USERNAME/dev/metrics-export/output
 capture_snapshot: true
 capture_time_series: false
 query_timeout: 15m
 clusters:
-  - name: ocp5-import
-    prom_base_url: https://prometheus-k8s-openshift-monitoring.apps.ocp5.lab.signal9.gg
+  - name: CLUSTER_NAME1
+    prom_base_url: https://prometheus-k8s-openshift-monitoring.apps.sample.com
     token: <Insert token here>
     node_merge: {}
-  - name: local-cluster
-    prom_base_url: https://prometheus-k8s-openshift-monitoring.apps.ocp3.lab.signal9.gg
+  - name: CLUSTER_NAME2
+    prom_base_url: https://prometheus-k8s-openshift-monitoring.apps.sample2.com
     token: sha256~<Insert token here>
     node_merge:
-      172.18.16.11: ocp3-master-0.lab.signal9.gg
-      172.18.16.12: ocp3-master-1.lab.signal9.gg
-      172.18.16.13: ocp3-master-2.lab.signal9.gg
-      172.18.16.14: ocp3-worker-0.lab.signal9.gg
-      172.18.16.15: ocp3-worker-1.lab.signal9.gg
-      172.18.16.16: ocp3-worker-2.lab.signal9.gg
+      172.18.16.11: ocp3-master-0.lab.sample2.com
+      172.18.16.12: ocp3-master-1.lab.sample2.com
+      172.18.16.13: ocp3-master-2.lab.sample2.com
+      172.18.16.14: ocp3-worker-0.lab.sample2.com
+      172.18.16.15: ocp3-worker-1.lab.sample2.com
+      172.18.16.16: ocp3-worker-2.lab.sample2.com
 multicluster:
-  base_url: https://observability-thanos.apps.ocp3.lab.signal9.gg
+  base_url: https://observability-thanos.apps.ocp3.lab.sample2.com
   token: null
 cluster_queries:
   - promql: sum(sum:apiserver_request_total:1h{cluster="{{cluster}}"}) by (cluster)
